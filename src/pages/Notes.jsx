@@ -5,7 +5,7 @@ import { AuthContext } from "../context/AuthProvider";
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
-  const { user, isLoading} = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     fetch(`https://react-note-app-server-q1aw1niwf-mahfuz2411.vercel.app/notes/${user.email}`) 
@@ -20,9 +20,9 @@ const Notes = () => {
         confirmButtonText: "Ok",
       });
     })
-  }, [isLoading, user]);
+  }, [ user]);
   return (
-    <div className="container mx-auto flex-grow">
+    <div className="container mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-10 py-5 md:py-10 px-5 md:px-10">
       {
         notes.map(note => <NoteCard key={note._id} note={note}></NoteCard>)
       }
