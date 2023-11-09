@@ -7,6 +7,8 @@ import SignIn from "../auth/SignIn";
 import Post from "../pages/Post";
 import Notes from "../pages/Notes";
 import PrivateRouter from "./PrivateRouter";
+import UpdateNote from "../pages/UpdateNote";
+import Home from "../pages/Home";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +16,10 @@ const router = createBrowserRouter([
     element: <App></App>,
     errorElement: <Error></Error>,
     children: [
+      {
+        path: "/",
+        element: <Home></Home>
+      },
       {
         path: "/login",
         element: <SignIn></SignIn>
@@ -25,6 +31,11 @@ const router = createBrowserRouter([
       {
         path: "/notes",
         element: <PrivateRouter><Notes/></PrivateRouter>,
+      },
+      {
+        path: "/update/:id",
+        element: <PrivateRouter><UpdateNote/></PrivateRouter>,
+        loader: ({params}) => fetch(`https://react-note-app-server.vercel.app/update/${params.id}`)
       }
     ]
   },

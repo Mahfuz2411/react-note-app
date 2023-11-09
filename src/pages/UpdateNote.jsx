@@ -1,60 +1,52 @@
-import { useContext } from "react";
-import { toast } from "react-toastify";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { AuthContext } from "../context/AuthProvider";
 import HelmetCompo from "../components/HelmetCompo";
 
-const Post = () => {
-  const { user } = useContext(AuthContext);
+const UpdateNote = () => {
+  const currentDate = new Date();
+  const note = useLoaderData();
+  const navigate = useNavigate();
+
+  const { update_history } = note;
+  const time_array = JSON.parse(update_history);
+  const last_update = currentDate.toString().split(" ").slice(0, 6).toString();
+  time_array.push(last_update);
+
+  // console.log(typeof time_array, time_array);
   const handleSubmit = (event) => {
     event.preventDefault();
+
     const form = event.target;
+
     const tittle = form.tittle.value;
     const details = form.details.value;
-    form.reset();
 
-    var currentDate = new Date();
-    if (!tittle || !details) return toast("Fields can't be empty.");
-    // console.log(currentDate);
-
-    if (!user) return toast("Something went wrong");
-
-    const last_update = currentDate
-      .toString()
-      .split(" ")
-      .slice(0, 6)
-      .toString();
-    // console.log(last_update);
-    const arr = [];
-    arr.push(last_update);
-    const update_history = JSON.stringify(arr);
-
-    // console.log(update_history);
-    const newNote = {
-      email: user.email,
-      tittle,
-      details,
-      update_history,
-    };
-
-    fetch("https://react-note-app-server.vercel.app/notes", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(newNote),
-    })
+    if (!tittle || !details) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please fill all the fields",
+      });
+    } else {
+      const newNote = {tittle, details, update_history: JSON.stringify(time_array)};
+      fetch(`https://react-note-app-server.vercel.app/notes/${note._id}`, {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(newNote),
+      })
       .then((res) => res.json())
       .then((data) => {
         // console.log(data);
-        if (data.insertedId) {
+        if (data.modifiedCount > 0) {
           Swal.fire({
             title: "Succes",
             text: "Note added succesfully",
             icon: "success",
             confirmButtonText: "Ok",
           });
-          form.reset();
+          navigate('/notes')
         } else {
           Swal.fire({
             title: "Error",
@@ -64,19 +56,11 @@ const Post = () => {
           });
         }
       })
-      .catch((error) => {
-        Swal.fire({
-          title: "Error",
-          text: `Error: ${error.message}`,
-          icon: "error",
-          confirmButtonText: "Ok",
-        });
-      });
+    }
   };
-
   return (
     <>
-    <HelmetCompo title="Add Note" />
+    <HelmetCompo title="Update Note" />
       <div className="hero min-h-screen bg-base-200">
         <form
           onSubmit={handleSubmit}
@@ -85,13 +69,13 @@ const Post = () => {
           <input
             name="tittle"
             type="text"
-            placeholder="Tittle"
             className="input input-bordered input-primary w-full max-w-xs"
+            defaultValue={note.tittle}
           />
           <textarea
             name="details"
             className="textarea textarea-primary h-40"
-            placeholder="Write Your Notes here"
+            defaultValue={note.details}
           ></textarea>
           <div className="form-control mt-6">
             <input
@@ -106,4 +90,4 @@ const Post = () => {
   );
 };
 
-export default Post;
+export default UpdateNote;

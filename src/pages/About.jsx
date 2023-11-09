@@ -1,10 +1,12 @@
+import HelmetCompo from "../components/HelmetCompo";
 
 
 const About = () => {
   return (
-    <div>
+    <>
+    <HelmetCompo title={"About"}/>
       <h1>Update Coming soon</h1>
-    </div>
+    </>
   );
 };
 
